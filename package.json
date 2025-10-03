@@ -6,11 +6,34 @@
 		"aipr": "./dist/index.js"
 	},
 	"scripts": {
-		"build": "tsc"
+		"build": "tsc",
+		"prepublishOnly": "pnpm run build"
 	},
-	"keywords": [],
-	"author": "",
+	"keywords": [
+		"ai",
+		"pull-request",
+		"pr",
+		"cli",
+		"automation",
+		"git",
+		"github"
+	],
+	"author": "Milind Mishra <milindmishra.work@gmail.com>",
 	"license": "ISC",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/thatbeautifuldream/aipr.git"
+	},
+	"bugs": {
+		"url": "https://github.com/thatbeautifuldream/aipr/issues"
+	},
+	"homepage": "https://github.com/thatbeautifuldream/aipr#readme",
+	"files": [
+		"dist"
+	],
+	"engines": {
+		"node": ">=18.0.0"
+	},
 	"packageManager": "pnpm@10.12.1",
 	"dependencies": {
 		"commander": "^14.0.1",
