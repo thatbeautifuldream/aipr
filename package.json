@@ -1,0 +1,25 @@
+{
+	"name": "aipr",
+	"version": "1.0.0",
+	"description": "Make your PRs with AI",
+	"bin": {
+		"aipr": "./dist/index.js"
+	},
+	"scripts": {
+		"build": "tsc"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"packageManager": "pnpm@10.12.1",
+	"dependencies": {
+		"commander": "^14.0.1",
+		"ora": "^9.0.0"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.4",
+		"@types/node": "^24.6.2",
+		"typescript": "^5.9.3",
+		"ultracite": "5.4.7"
+	}
+}
