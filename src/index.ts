@@ -3,7 +3,6 @@
 import { exec as execCallback, spawn } from "node:child_process";
 import { promisify } from "node:util";
 import { program } from "commander";
-import ora from "ora";
 
 const exec = promisify(execCallback);
 
@@ -14,6 +13,10 @@ program
   .parse(process.argv);
 
 const options = program.opts();
+
+if (options.branch?.startsWith("=")) {
+  options.branch = options.branch.slice(1);
+}
 
 async function runCommand(command: string) {
   const { stdout } = await exec(command);
@@ -39,41 +42,30 @@ async function main() {
 
     const systemPrompt = `system: you are to make a draft pull request against the ${options.branch} branch. title should use conventional commit style, all smallcase. description should have no attribution. do not assign, label, or mention anyone. always create the pr as draft.`;
 
-    const spinner = ora(
-      "Generating draft pull request description via AI..."
-    ).start();
+    // biome-ignore lint/suspicious/noConsole: required output
+    console.log(
+      "Starting Claude to generate draft pull request...\n"
+    );
 
     await new Promise<void>((resolve, reject) => {
       const aiProcess = spawn("claude", [
-        "--verbose",
         "--dangerously-skip-permissions",
         "-p",
         systemPrompt,
-      ]);
-
-      aiProcess.stdout.on("data", (data) => {
-        spinner.text = `AI output: ${data.toString().trim()}`;
-      });
-
-      aiProcess.stderr.on("data", (data) => {
-        spinner.text = `AI: ${data.toString().trim()}`;
+      ], {
+        stdio: 'inherit',
+        env: { ...process.env, FORCE_COLOR: '1' }
       });
 
       aiProcess.on("close", (code) => {
-        spinner.stop();
         if (code === 0) {
-          // biome-ignore lint/suspicious/noConsole: required output
-          console.log("\nDraft PR generation complete.");
           resolve();
         } else {
-          // biome-ignore lint/suspicious/noConsole: error handling
-          console.error("AI process failed.");
           reject(new Error(`AI process exited with code ${code}`));
         }
       });
 
       aiProcess.on("error", (error) => {
-        spinner.stop();
         reject(error);
       });
     });

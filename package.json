@@ -36,8 +36,7 @@
 	},
 	"packageManager": "pnpm@10.12.1",
 	"dependencies": {
-		"commander": "^14.0.1",
-		"ora": "^9.0.0"
+		"commander": "^14.0.1"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
