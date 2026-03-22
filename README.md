@@ -8,6 +8,22 @@ Make your draft PRs with AI.
 pnpm install -g aipr
 ```
 
+## Local Development
+
+Build and run the CLI without publishing:
+
+```bash
+pnpm run build
+node dist/src/index.js --base-branch main
+```
+
+Link it globally to use the `aipr` command locally:
+
+```bash
+pnpm link --global
+aipr --base-branch main
+```
+
 ## Usage
 
 ```bash
