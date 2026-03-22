@@ -1,6 +1,6 @@
 {
 	"name": "aipr",
-	"version": "1.0.2",
+	"version": "1.1.0",
 	"description": "Make your PRs with AI",
 	"bin": {
 		"aipr": "./dist/src/index.js"
