@@ -1,13 +1,17 @@
 {
 	"name": "aipr",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"description": "Make your PRs with AI",
 	"bin": {
 		"aipr": "./dist/src/index.js"
 	},
 	"scripts": {
 		"build": "tsc",
-		"test": "pnpm run build && node --test dist/test/**/*.test.js",
+		"test": "pnpm run build && node --test dist/test/**/*.test.js test/**/*.test.mjs",
+		"version:check": "node scripts/check-version-sync.mjs",
+		"version:sync": "node scripts/sync-version.mjs",
+		"release": "node scripts/release.mjs",
+		"release:check": "node scripts/release.mjs --dry-run --channel next --bump patch",
 		"prepublishOnly": "pnpm run build"
 	},
 	"keywords": [

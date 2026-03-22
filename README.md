@@ -24,6 +24,42 @@ pnpm link --global
 aipr --base-branch main
 ```
 
+## Release Workflow
+
+Keep the local package version aligned with npm before cutting releases:
+
+```bash
+pnpm version:check
+pnpm version:sync
+```
+
+Dry-run the release automation:
+
+```bash
+pnpm release:check
+pnpm release -- --channel next --bump minor --dry-run
+```
+
+Publish a prerelease from any branch:
+
+```bash
+pnpm release -- --channel next --bump minor
+```
+
+Publish a stable release:
+
+```bash
+pnpm release -- --channel latest --bump patch
+```
+
+Stable releases from non-`main` require an explicit override:
+
+```bash
+pnpm release -- --channel latest --bump patch --allow-non-main-latest
+```
+
+Published npm versions are not rolled backward or reused. If confidence is low, use the `next` channel first.
+
 ## Usage
 
 ```bash
