@@ -28,19 +28,18 @@ aipr --base-branch main
 
 Publishing is handled from GitHub Actions.
 
-Create a trusted publisher connection on npm with:
+Create a repository secret named `NPM_TOKEN` in GitHub:
 
-- Organization or user: `thatbeautifuldream`
-- Repository: `aipr`
-- Workflow filename: `publish.yml`
-- Environment name: leave blank unless you want a protected GitHub environment
+- GitHub repo: `thatbeautifuldream/aipr`
+- Secret name: `NPM_TOKEN`
+- Value: an npm token with permission to publish `aipr`
 
-Once the trusted publisher is connected, run the `Publish` workflow from the GitHub Actions tab and provide:
+Then run the `Publish` workflow from the GitHub Actions tab and provide:
 
 - `channel=latest` with a `version` like `1.1.1`
 - `channel=next` with a prerelease `version` like `1.1.1-beta.0`
 
-The workflow will validate the version, update `package.json`, build, test, commit the release, tag it, publish to npm with provenance, and push the branch and tag back to GitHub.
+The workflow will validate the version, update `package.json`, build, test, commit the release, tag it, publish to npm, and push the branch and tag back to GitHub.
 
 Published npm versions are not rolled backward or reused.
 

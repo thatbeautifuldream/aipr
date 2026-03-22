@@ -18,7 +18,6 @@ on:
 
 permissions:
   contents: write
-  id-token: write
 
 concurrency:
   group: publish-${{ github.ref }}
@@ -132,11 +131,13 @@ jobs:
           echo "created_tag=${CREATED_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Publish package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           if [ "${{ inputs.channel }}" = "next" ]; then
-            npm publish --tag next --provenance
+            npm publish --tag next
           else
-            npm publish --provenance
+            npm publish
           fi
 
       - name: Push release commit and tag
