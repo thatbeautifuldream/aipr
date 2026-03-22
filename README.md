@@ -1,6 +1,6 @@
 # aipr
 
-Make your PRs with AI.
+Make your draft PRs with AI.
 
 ## Install
 
@@ -11,18 +11,44 @@ pnpm install -g aipr
 ## Usage
 
 ```bash
-aipr -b <base-branch>
+aipr --base-branch main
 ```
 
-Creates a draft PR against the specified branch using AI to generate the title and description.
+Create a GitHub draft PR for the current branch against the specified base branch.
+
+Explicit source and target branches:
+
+```bash
+aipr create --base-branch main --head-branch feature/multi-harness
+```
+
+Choose a harness:
+
+```bash
+aipr --base-branch main --harness codex
+```
+
+Dry run:
+
+```bash
+aipr --base-branch main --dry-run
+```
+
+## Supported Harnesses
+
+- Claude Code
+- Codex CLI
+- Gemini CLI
 
 ## Requirements
 
-- Git repository with commits ahead of the base branch and pushed to remote branch as well.
-- Claude Code `pnpm install -g @anthropic-ai/claude-code` installed and setup
+- Git repository with commits ahead of the base branch
+- GitHub CLI `gh` installed and authenticated
+- One supported harness installed and authenticated
 
-## Example
+## Commands
 
 ```bash
-aipr -b main
+aipr harness list
+aipr doctor
 ```

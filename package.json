@@ -3,10 +3,11 @@
 	"version": "1.0.1",
 	"description": "Make your PRs with AI",
 	"bin": {
-		"aipr": "./dist/index.js"
+		"aipr": "./dist/src/index.js"
 	},
 	"scripts": {
 		"build": "tsc",
+		"test": "pnpm run build && node --test dist/test/**/*.test.js",
 		"prepublishOnly": "pnpm run build"
 	},
 	"keywords": [
