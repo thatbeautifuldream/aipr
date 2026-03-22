@@ -24,41 +24,25 @@ pnpm link --global
 aipr --base-branch main
 ```
 
-## Release Workflow
+## GitHub Actions Publishing
 
-Keep the local package version aligned with npm before cutting releases:
+Publishing is handled from GitHub Actions.
 
-```bash
-pnpm version:check
-pnpm version:sync
-```
+Create a trusted publisher connection on npm with:
 
-Dry-run the release automation:
+- Organization or user: `thatbeautifuldream`
+- Repository: `aipr`
+- Workflow filename: `publish.yml`
+- Environment name: leave blank unless you want a protected GitHub environment
 
-```bash
-pnpm release:check
-pnpm release -- --channel next --bump minor --dry-run
-```
+Once the trusted publisher is connected, run the `Publish` workflow from the GitHub Actions tab and provide:
 
-Publish a prerelease from any branch:
+- `channel=latest` with a `version` like `1.1.1`
+- `channel=next` with a prerelease `version` like `1.1.1-beta.0`
 
-```bash
-pnpm release -- --channel next --bump minor
-```
+The workflow will validate the version, update `package.json`, build, test, commit the release, tag it, publish to npm with provenance, and push the branch and tag back to GitHub.
 
-Publish a stable release:
-
-```bash
-pnpm release -- --channel latest --bump patch
-```
-
-Stable releases from non-`main` require an explicit override:
-
-```bash
-pnpm release -- --channel latest --bump patch --allow-non-main-latest
-```
-
-Published npm versions are not rolled backward or reused. If confidence is low, use the `next` channel first.
+Published npm versions are not rolled backward or reused.
 
 ## Usage
 

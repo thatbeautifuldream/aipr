@@ -7,11 +7,7 @@
 	},
 	"scripts": {
 		"build": "tsc",
-		"test": "pnpm run build && node --test dist/test/**/*.test.js test/**/*.test.mjs",
-		"version:check": "node scripts/check-version-sync.mjs",
-		"version:sync": "node scripts/sync-version.mjs",
-		"release": "node scripts/release.mjs",
-		"release:check": "node scripts/release.mjs --dry-run --channel next --bump patch",
+		"test": "pnpm run build && node --test dist/test/**/*.test.js",
 		"prepublishOnly": "pnpm run build"
 	},
 	"keywords": [

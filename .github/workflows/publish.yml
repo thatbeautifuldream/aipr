@@ -1,0 +1,127 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: npm dist-tag to publish to
+        required: true
+        default: latest
+        type: choice
+        options:
+          - latest
+          - next
+      version:
+        description: Version to publish, e.g. 1.1.1 or 1.1.1-beta.0
+        required: true
+        type: string
+
+permissions:
+  contents: write
+  id-token: write
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.12.1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Configure git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Validate release inputs
+        run: |
+          VERSION="${{ inputs.version }}"
+          CHANNEL="${{ inputs.channel }}"
+
+          if ! [[ "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z-]+\.[0-9]+)?$ ]]; then
+            echo "Invalid semver: $VERSION"
+            exit 1
+          fi
+
+          if [ "$CHANNEL" = "latest" ] && [[ "$VERSION" == *-* ]]; then
+            echo "latest releases must use a stable version."
+            exit 1
+          fi
+
+      - name: Validate against npm registry
+        run: |
+          PUBLISHED_VERSION="$(npm view aipr version)"
+          TARGET_VERSION="${{ inputs.version }}"
+          node -e '
+            const [published, target] = process.argv.slice(1);
+            function parse(version) {
+              const match = version.match(/^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z-]+)\.(\d+))?$/);
+              if (!match) throw new Error(`Invalid semver: ${version}`);
+              return {
+                major: Number(match[1]),
+                minor: Number(match[2]),
+                patch: Number(match[3]),
+                tag: match[4] ?? null,
+                num: match[5] ? Number(match[5]) : null,
+              };
+            }
+            function compare(a, b) {
+              const left = typeof a === "string" ? parse(a) : a;
+              const right = typeof b === "string" ? parse(b) : b;
+              for (const key of ["major", "minor", "patch"]) {
+                if (left[key] !== right[key]) return left[key] > right[key] ? 1 : -1;
+              }
+              if (left.tag === null && right.tag === null) return 0;
+              if (left.tag === null) return 1;
+              if (right.tag === null) return -1;
+              if (left.tag !== right.tag) return left.tag > right.tag ? 1 : -1;
+              if (left.num === right.num) return 0;
+              return left.num > right.num ? 1 : -1;
+            }
+            if (compare(target, published) <= 0) {
+              throw new Error(`Target version ${target} must be greater than published version ${published}`);
+            }
+          ' "$PUBLISHED_VERSION" "$TARGET_VERSION"
+
+      - name: Update package version
+        run: npm pkg set version="${{ inputs.version }}"
+
+      - name: Build and test
+        run: |
+          pnpm run build
+          pnpm test
+
+      - name: Commit release
+        run: |
+          git add package.json
+          git commit -m "chore(release): v${{ inputs.version }}"
+          git tag "v${{ inputs.version }}"
+
+      - name: Publish package
+        run: |
+          if [ "${{ inputs.channel }}" = "next" ]; then
+            npm publish --tag next --provenance
+          else
+            npm publish --provenance
+          fi
+
+      - name: Push release commit and tag
+        run: |
+          git push origin HEAD
+          git push origin "v${{ inputs.version }}"
