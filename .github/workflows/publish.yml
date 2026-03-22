@@ -107,11 +107,29 @@ jobs:
           pnpm run build
           pnpm test
 
-      - name: Commit release
+      - name: Prepare release commit and tag
+        id: prepare_release
         run: |
+          VERSION="${{ inputs.version }}"
+          CREATED_COMMIT=false
+          CREATED_TAG=false
+
           git add package.json
-          git commit -m "chore(release): v${{ inputs.version }}"
-          git tag "v${{ inputs.version }}"
+
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(release): v${VERSION}"
+            CREATED_COMMIT=true
+          fi
+
+          if git rev-parse "v${VERSION}" >/dev/null 2>&1; then
+            echo "Tag v${VERSION} already exists locally."
+          else
+            git tag "v${VERSION}"
+            CREATED_TAG=true
+          fi
+
+          echo "created_commit=${CREATED_COMMIT}" >> "$GITHUB_OUTPUT"
+          echo "created_tag=${CREATED_TAG}" >> "$GITHUB_OUTPUT"
 
       - name: Publish package
         run: |
@@ -123,5 +141,14 @@ jobs:
 
       - name: Push release commit and tag
         run: |
-          git push origin HEAD
-          git push origin "v${{ inputs.version }}"
+          if [ "${{ steps.prepare_release.outputs.created_commit }}" = "true" ]; then
+            git push origin HEAD
+          else
+            echo "No release commit created."
+          fi
+
+          if git ls-remote --tags origin "v${{ inputs.version }}" | grep -q "v${{ inputs.version }}"; then
+            echo "Tag v${{ inputs.version }} already exists on origin."
+          else
+            git push origin "v${{ inputs.version }}"
+          fi
